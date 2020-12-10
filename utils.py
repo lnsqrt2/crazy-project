@@ -138,6 +138,7 @@ class SignalDataset_music(Dataset):
         self.len = 0
         if self.train:
             self.len = len(glob.glob1(root_dir, "*train_x*.npy"))
+            print("train len",self.len)
         else:
             self.len = len(glob.glob1(root_dir, "*test_x*.npy"))
     
@@ -155,3 +156,4 @@ class SignalDataset_music(Dataset):
     def __len__(self):
         return self.len
 
+SignalDataset_music("/music", 64, train=True)

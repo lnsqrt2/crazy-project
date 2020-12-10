@@ -42,16 +42,19 @@ def train_transformer():
                 'optimizer': optimizer,
                 'criterion': criterion,
                 'scheduler': scheduler}
+    print("point1 train_transformer ok")
     return train_model(settings)
 
 
 def train_model(settings):
+    print("point2 train_model begin")
     model = settings['model']
     optimizer = settings['optimizer']
     criterion = settings['criterion']
     scheduler = settings['scheduler']
     model.to(device)
     def train(model, optimizer, criterion):
+        print("train begin")
         epoch_loss = 0.0
         batch_size = args.batch_size
         num_batches = len(training_set) // batch_size
@@ -60,8 +63,12 @@ def train_model(settings):
         shape = (args.time_step, training_set.len, args.output_dim)
         true_vals = torch.zeros(shape)
         pred_vals = torch.zeros(shape)
+        
         model.train()
+        print("train1 done")
+        print("train_loader",len(train_loader))
         for i_batch, (batch_X, batch_y) in enumerate(train_loader):
+            print("i",i_batch)
             model.zero_grad()
             batch_X = batch_X.transpose(0, 1)
             batch_y = batch_y.transpose(0, 1)
@@ -78,6 +85,7 @@ def train_model(settings):
         aps = average_precision_score(true_vals.flatten(), pred_vals.flatten())
         aps = 0
         print(sys.argv) 
+        print("train done")SS
         return epoch_loss / len(training_set), aps
 
     def evaluate(model, criterion):
@@ -104,7 +112,8 @@ def train_model(settings):
         return epoch_loss / len(test_set), aps
 
 
-
+    print("point3 def ok")
+    print("num_epochs",args.num_epochs)
     for epoch in range(args.num_epochs):
         start = time.time() 
 

@@ -24,6 +24,7 @@ test_data = ['2303','2382','1819']
 train_data = [f for f in data.files if f not in test_data]
 index = 0
 # create the train set
+print("len(train_data)",len(train_data))
 for i in range(len(train_data)):
     print(i)
     X,Y = data[train_data[i]]
