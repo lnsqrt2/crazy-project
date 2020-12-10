@@ -1,12 +1,8 @@
 import torch
 from torch import nn
 import os,sys,inspect
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
 from utils import SignalDataset_music
 import argparse
-from model import *
 import torch.optim as optim
 import numpy as np
 import time
@@ -16,6 +12,8 @@ import os
 import time
 import random
 from sklearn.metrics import average_precision_score
+
+from c2nn.model import *
 
 def train_transformer():
     model = TransformerModel(time_step=args.time_step,
@@ -128,74 +126,4 @@ def train_model(settings):
         end = time.time()
         print("time: %d" % (end - start))
 
-print(sys.argv)
-parser = argparse.ArgumentParser(description='Signal Data Analysis')
-parser.add_argument('--attn_dropout', type=float, default=0.0,
-                    help='attention dropout')
-parser.add_argument('--attn_mask', action='store_true',
-                    help='use attention mask for Transformer (default: False)')
-parser.add_argument('--batch_size', type=int, default=16, metavar='N',
-                    help='batch size (default: 16)')
-parser.add_argument('--clip', type=float, default=0.35,
-                    help='gradient clip value (default: 0.35)')
-parser.add_argument('--data', type=str, default='music')
-parser.add_argument('--embed_dim', type=int, default=320,
-                    help='dimension of real and imag embeddimg before transformer (default: 320)')
-parser.add_argument('--hidden_size', type=int, default=2048,
-                    help='hidden_size in transformer (default: 2048)')
-parser.add_argument('--lr', type=float, default=1e-4,
-                    help='initial learning rate (default: 1e-4)')
-parser.add_argument('--modal_lengths', nargs='+', type=int, default=[2048, 2048],
-                    help='lengths of each modality (default: [2048, 2048])')
-parser.add_argument('--model', type=str, default='Transformer',
-                    help='name of the model to use (Transformer, etc.)')
-parser.add_argument('--nlevels', type=int, default=6,
-                    help='number of layers in the network (if applicable) (default: 6)')
-parser.add_argument('--num_epochs', type=int, default=2000,
-                    help='number of epochs (default: 2000)')
-parser.add_argument('--num_heads', type=int, default=8,
-                    help='number of heads for the transformer network')
-parser.add_argument('--optim', type=str, default='Adam',
-                    help='optimizer to use (default: Adam)')
-parser.add_argument('--out_dropout', type=float, default=0.5,
-                    help='hidden layer dropout')
-parser.add_argument('--output_dim', type=int, default=128,
-                    help='dimension of output (default: 128)')
-parser.add_argument('--path', type=str, default='music/',
-                    help='path for storing the dataset')
-parser.add_argument('--relu_dropout', type=float, default=0.1,
-                    help='relu dropout')
-parser.add_argument('--res_dropout', type=float, default=0.1,
-                    help='residual block dropout')
-parser.add_argument('--seed', type=int, default=1111,
-                    help='random seed')
-parser.add_argument('--time_step', type=int, default=64,
-                    help='number of time step for each sequence(default: 64)')
-args = parser.parse_args()
 
-torch.manual_seed(args.seed)
-torch.cuda.manual_seed(args.seed)
-np.random.seed(args.seed)
-random.seed(args.seed)
-torch.backends.cudnn.deterministic = True
-print(args)
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-use_cuda = True
-"""
-Data Loading
-"""
-torch.set_default_tensor_type('torch.FloatTensor')
-print("Start loading the data....")
-start_time = time.time() 
-if args.data == 'music':
-    training_set = SignalDataset_music(args.path, args.time_step, train=True)
-    test_set = SignalDataset_music(args.path, args.time_step, train=False)
-elif args.data == 'iq':
-    training_set = SignalDataset_iq(args.path, args.time_step, train=True)
-    test_set = SignalDataset_iq(args.path, args.time_step, train=False)
-    print("This file is for music dataset only; use train_iq.py for training iq net.")
-    assert False
-print("Finish loading the data....")
-train_loader = torch.utils.data.DataLoader(training_set, batch_size=args.batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size, shuffle=True)
-train_transformer()
