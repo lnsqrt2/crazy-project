@@ -1,0 +1,74 @@
+clear;
+
+#Define the source bandwidth
+CenterWavelength=1310e-9;
+Span=60e-9;
+
+#Plot Bandwidth and resolution
+PlotCenterWavelength=1310e-9;
+PlotSpan=60e-9;
+FrequencyPoints=61;
+
+#Check if the simulation is in layout mode
+runsim=layoutmode;
+if (runsim==0) {
+switchtolayout;
+}
+
+#Run simulation with multifrequency beam calculation on
+
+select("source");
+set("center wavelength",CenterWavelength);
+set("wavelength span",Span);
+set("multifrequency beam calculation",1);
+
+select("R");
+shiftselect("T");
+shiftselect("Output");
+set("wavelength center",PlotCenterWavelength);
+set("wavelength span",PlotSpan);
+set("frequency points",FrequencyPoints);
+
+run;
+
+#Get direct measurement of the power coupled into the waveguide
+OUTmulti=getresult("Output","T");
+w=OUTmulti.lambda;
+OUTmulti=OUTmulti.T;
+
+#Get reflected and transmitted power in order to calculate the coupled power
+#(Indirect method used in the reference papper)
+Tmulti=getresult("T","T");
+Tmulti=Tmulti.T;
+Rmulti=getresult("R","T");
+Rmulti=Rmulti.T;
+CoupledTmultiCalc=1-abs(Tmulti)-abs(Rmulti);
+
+#Switch to single frequency beam calculation and run the simulation once again
+switchtolayout;
+select("source");
+set("multifrequency beam calculation",0);
+
+run;
+
+#Get direct measurement of the power coupled into the waveguide
+OUTsingle=getresult("Output","T");
+OUTsingle=OUTsingle.T;
+
+#Get reflected and transmitted power in order to calculate the coupled power
+#(Indirect method used in the reference papper)
+Tsingle=getresult("T","T");
+Tsingle=Tsingle.T;
+Rsingle=getresult("R","T");
+Rsingle=Rsingle.T;
+CoupledTsingleCalc=1-abs(Tsingle)-abs(Rsingle);
+
+#Plot the coupled power as function of wavelength and compare
+#the single vs multi frequency calculation results 
+#and the direct vs indirect method
+plot(w*1e9,abs(OUTmulti*100),abs(OUTsingle*100),CoupledTmultiCalc*100,CoupledTsingleCalc*100,"Wavelength[nm]","Coupled power [%]");
+legend("Broadband Direct","Single Direct","Broadband Calc","Single Calc");
+
+
+
+

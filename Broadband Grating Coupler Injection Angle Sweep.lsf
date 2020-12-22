@@ -1,0 +1,34 @@
+clear;
+
+#Set wavelength at which to calculated the coupling efficiency characteristic
+Wavelength=1310e-9;
+
+#Check if the simulation is in layout mode
+runsim=layoutmode;
+if (runsim==0) {
+switchtolayout;
+}
+
+
+select("source");
+set("wavelength start",Wavelength);
+set("wavelength stop",Wavelength);
+set("multifrequency beam calculation",0);
+select("R");
+shiftselect("T");
+shiftselect("Output");
+set("wavelength center",Wavelength);
+set("wavelength span",0);
+set("frequency points",1);
+
+
+
+#Run the predefined sweep
+runsweep("Sweep Injection Angle");
+
+#Collect and plot the sweep results
+CoupledPower=getsweepresult("Sweep Injection Angle","Coupled power");
+Theta=CoupledPower.Theta;
+CoupledPower=abs(CoupledPower.T);
+plotxy(abs(Theta),CoupledPower*100,"Theta [Deg]","Coupled Power [%]","Coupled power as function of injection angle at "+num2str(Wavelength)+" nm");
+
