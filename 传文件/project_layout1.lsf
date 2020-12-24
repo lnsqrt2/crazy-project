@@ -1,0 +1,114 @@
+#num=0;
+#for(duty_cycle=0.3;duty_cycle<=1;duty_cycle=duty_cycle+0.1){
+    #for(ridge_height = 300e-9;ridge_height <= 700e-9;ridge_height = ridge_height+100e-9){
+    #num=num+1;
+  
+
+switchtolayout;
+select("grating red");
+delete;
+select("grating green");
+delete;
+select("grating blue");
+delete;
+select("waveguide");
+delete;
+
+lambda_red = 0.666e-6;
+lambda_green = 0.574e-6;
+lambda_blue = 0.483e-6;
+index_red = 1.8417;
+index_green = 1.8522;
+index_blue = 1.8699;
+duty_cycle_red = 0.3111;
+duty_cycle_green = 0.3126;
+duty_cycle_blue = 0.2676;
+ridge_height_red = 0.3007e-6;
+ridge_height_green = 0.2497e-6;
+ridge_height_blue = 0.2168e-6;
+period_red = 0.63e-6;
+period_green = 0.54e-6;
+period_blue = 0.45e-6;
+
+fill_red=duty_cycle_red*period_red;
+fill_green=duty_cycle_green*period_green;
+fill_blue=duty_cycle_blue*period_blue;
+
+index = index_green;
+lambda = lambda_green;
+period_common = 18.9e-6;
+
+n_periods = 10;
+width = 0.3e-6;
+
+addstructuregroup;
+set("name", "grating red");
+x_pos = [-fill_red/2,		-fill_red/2,fill_red/2,fill_red/2];
+y_pos = [ridge_height_red,	0,	0, 	ridge_height_red];
+V=[x_pos; y_pos];
+for (i=1:n_periods) {
+  addpoly;
+  set("name","substrate");
+  set("x",-(n_periods*period_red)/2 + (i-1)*period_red);
+  set("y",0);
+  set("z",0);
+  set("z span",width);
+  set("index",index);
+  set("vertices",V);
+  addtogroup("grating red");
+}
+
+addstructuregroup;
+set("name", "grating green");
+x_pos = [-fill_green/2,-fill_green/2,fill_green/2,fill_green/2];
+y_pos = [ridge_height_green,	0,	0, 	ridge_height_green];
+V=[x_pos; y_pos];
+for (i=1:n_periods) {
+  addpoly;
+  set("name","substrate");
+  set("x",-(n_periods*period_green)/2 + (i-1)*period_green);
+  set("y",0);
+  set("z",0);
+  set("z span",width);
+  set("index",index);
+  set("vertices",V);
+  addtogroup("grating green");
+}
+
+addstructuregroup;
+set("name", "grating blue");
+x_pos = [-fill_blue/2,-fill_blue/2,fill_blue/2,fill_blue/2];
+y_pos = [ridge_height_blue,	0,	0, 	ridge_height_blue];
+V=[x_pos; y_pos];
+for (i=1:n_periods) {
+  addpoly;
+  set("name","substrate");
+  set("x",-(n_periods*period_blue)/2 + (i-1)*period_blue);
+  set("y",0);
+  set("z",0);
+  set("z span",width);
+  set("index",index);
+  set("vertices",V);
+  addtogroup("grating blue");
+}
+
+addrect;
+  set("name","waveguide");
+  set("x",0);
+  set("x span",2*period_common);
+  set("y min",-5*ridge_height_red);
+  set("y max",0);
+  set("z",0);
+  set("z span",width);
+  set("index",index);
+
+#run;
+#select("grating_T");
+#runanalysis;
+#mname="grating_T";
+#T_grating=getresult(mname,"T_grating");
+#efficiency = -T_grating(1);
+#Mode='data'+num2str(num);
+#matlabsave(Mode,ridge_height,duty_cycle,efficiency);
+    #}
+#}
