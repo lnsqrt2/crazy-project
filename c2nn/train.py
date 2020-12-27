@@ -14,6 +14,7 @@ from sklearn.metrics import average_precision_score
 
 from c2nn.model import *
 
+os.environ['CUDA_VISIBLE_DEVICE']='0,1,2,3'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 use_cuda = True
 
@@ -32,6 +33,9 @@ def train_transformer(args,training_set,train_loader,test_set,test_loader):
                              attn_mask=args['attn_mask'])
     if use_cuda:
         model = model.cuda()
+        print("use gpu")
+    else:
+        print("use cpu")
 
     print("Model size: {0}".format(count_parameters(model)))
 
@@ -43,6 +47,10 @@ def train_transformer(args,training_set,train_loader,test_set,test_loader):
                 'criterion': criterion,
                 'scheduler': scheduler}
     print("point1 train_transformer ok")
+
+    #model = nn.DataParallel(model,device_ids=[0,1,2])
+    #print("use multi gpu")
+
     return train_model(settings,args,training_set,train_loader,test_set,test_loader)
 
 

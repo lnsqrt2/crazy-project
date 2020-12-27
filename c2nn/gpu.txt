@@ -1,0 +1,1 @@
+for /l %g in () do @( nvidia-smi & timeout /t 5 )
