@@ -13,9 +13,11 @@ import random
 from sklearn.metrics import average_precision_score
 
 from c2nn.model import *
+from tqdm import tqdm_notebook
 
-os.environ['CUDA_VISIBLE_DEVICE']='0,1,2,3'
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+#os.environ['CUDA_VISIBLE_DEVICE']='0,1,2,3'
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 use_cuda = True
 
 def train_transformer(args,training_set,train_loader,test_set,test_loader):
@@ -75,7 +77,7 @@ def train_model(settings,args,training_set,train_loader,test_set,test_loader):
         model.train()
         print("train1 done")
         print("train_loader",len(train_loader))
-        for i_batch, (batch_X, batch_y) in enumerate(train_loader):
+        for i_batch, (batch_X, batch_y) in tqdm_notebook(enumerate(train_loader)):
             print("i",i_batch)
             model.zero_grad()
             batch_X = batch_X.transpose(0, 1)
